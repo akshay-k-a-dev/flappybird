@@ -67,8 +67,7 @@ class Pipe:
         self.height = random.randint(50, SCREEN_HEIGHT - PIPE_GAP - GROUND_HEIGHT)
         self.top_rect = pygame.Rect(self.x, 0, PIPE_WIDTH, self.height)
         self.bottom_rect = pygame.Rect(self.x, self.height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT)
-        self.scored = False  # Add this line
-
+        self.scored = False
 
     def update(self):
         self.x -= PIPE_SPEED
@@ -90,51 +89,77 @@ def check_collision(bird, pipes):
         return True
     return False
 
-def main():
-    bird = Bird()
-    pipes = [Pipe()]
-    score = 0
-    running = True
+def game_over_screen(score):
+    while True:
+        screen.fill(WHITE)
+        game_over_text = font.render('Game Over', True, BLACK)
+        score_text = font.render(f'Score: {score}', True, BLACK)
+        restart_text = font.render('Press R to Restart or Q to Quit', True, BLACK)
 
-    while running:
-        screen.blit(BACKGROUND_IMAGE, (0, 0))
+        screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, SCREEN_HEIGHT // 2 - 60))
+        screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, SCREEN_HEIGHT // 2))
+        screen.blit(restart_text, (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, SCREEN_HEIGHT // 2 + 60))
+
+        pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    bird.flap()
+                if event.key == pygame.K_r:
+                    return  # Restart the game
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
 
-        bird.update()
+def main():
+    while True:  # Add a loop for restarting the game
+        bird = Bird()
+        pipes = [Pipe()]
+        score = 0
+        running = True
 
-        if check_collision(bird, pipes):
-            running = False
+        while running:
+            screen.blit(BACKGROUND_IMAGE, (0, 0))
 
-        if pipes[-1].x < SCREEN_WIDTH // 2:
-            pipes.append(Pipe())
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        bird.flap()
 
-        pipes = [pipe for pipe in pipes if not pipe.off_screen()]
+            bird.update()
 
-        for pipe in pipes:
-            pipe.update()
-            pipe.draw(screen)
+            if check_collision(bird, pipes):
+                running = False
 
-            # Score increment logic
-            if not pipe.scored and pipe.x + PIPE_WIDTH < bird.x:
-                score += 1
-                pipe.scored = True  # Mark this pipe as scored
+            if pipes[-1].x < SCREEN_WIDTH // 2:
+                pipes.append(Pipe())
 
-        bird.draw(screen)
+            pipes = [pipe for pipe in pipes if not pipe.off_screen()]
 
-        screen.blit(GROUND_IMAGE, (0, SCREEN_HEIGHT - GROUND_HEIGHT))
+            for pipe in pipes:
+                pipe.update()
+                pipe.draw(screen)
 
-        score_surface = font.render(f'Score: {score}', True, BLACK)
-        screen.blit(score_surface, (10, 10))
+                if not pipe.scored and pipe.x + PIPE_WIDTH < bird.x:
+                    score += 1
+                    pipe.scored = True
 
-        pygame.display.update()
-        clock.tick(30)
+            bird.draw(screen)
+
+            screen.blit(GROUND_IMAGE, (0, SCREEN_HEIGHT - GROUND_HEIGHT))
+
+            score_surface = font.render(f'Score: {score}', True, BLACK)
+            screen.blit(score_surface, (10, 10))
+
+            pygame.display.update()
+            clock.tick(30)
+
+        game_over_screen(score)
 
 if __name__ == '__main__':
     main()
