@@ -67,7 +67,7 @@ class Pipe:
         self.height = random.randint(50, SCREEN_HEIGHT - PIPE_GAP - GROUND_HEIGHT)
         self.top_rect = pygame.Rect(self.x, 0, PIPE_WIDTH, self.height)
         self.bottom_rect = pygame.Rect(self.x, self.height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT)
-        self.scored = False
+        self.scored = False  # Initialize scored attribute
 
     def update(self):
         self.x -= PIPE_SPEED
@@ -75,7 +75,9 @@ class Pipe:
         self.bottom_rect.x = self.x
 
     def draw(self, screen):
+        # Draw the top pipe
         screen.blit(PIPE_IMAGE, (self.x, self.height - PIPE_HEIGHT))
+        # Draw the bottom pipe
         screen.blit(pygame.transform.flip(PIPE_IMAGE, False, True), (self.x, self.height + PIPE_GAP))
 
     def off_screen(self):
@@ -93,7 +95,7 @@ def game_over_screen(score):
     while True:
         screen.fill(WHITE)
         game_over_text = font.render('Game Over', True, BLACK)
-        score_text = font.render(f'Score: {score}', True, BLACK)
+        score_text = font.render('Score: {}'.format(score), True, BLACK)
         restart_text = font.render('Press R to Restart or Q to Quit', True, BLACK)
 
         screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, SCREEN_HEIGHT // 2 - 60))
@@ -114,7 +116,7 @@ def game_over_screen(score):
                     sys.exit()
 
 def main():
-    while True:  # Add a loop for restarting the game
+    while True:
         bird = Bird()
         pipes = [Pipe()]
         score = 0
@@ -153,7 +155,7 @@ def main():
 
             screen.blit(GROUND_IMAGE, (0, SCREEN_HEIGHT - GROUND_HEIGHT))
 
-            score_surface = font.render(f'Score: {score}', True, BLACK)
+            score_surface = font.render('Score: {}'.format(score), True, BLACK)
             screen.blit(score_surface, (10, 10))
 
             pygame.display.update()
